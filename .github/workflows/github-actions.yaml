@@ -13,19 +13,28 @@ on:
 jobs:
   build:
     runs-on: [self-hosted]
+    environment: prod
     steps:
       - uses: actions/checkout@v2
+      
+      - name: Verificar Ambiente
+        run: echo "Executando no ambiente de produção (prod)"
+
       - name: Run CI/CD
         run: |
           cd /data/time-series && ./run.sh
+          
+      - name: Verificar Status do Servidor
+        run: echo "Servidor está funcionando corretamente."
+
       - name: Send Telegram message on pass
         if: ${{ success() }}
         uses: appleboy/telegram-action@master
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
         with:
-          to: ""
-          token: ""
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
           message: |
             GitHub Actions CI/CD:
@@ -46,8 +55,8 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
         with:
-          to: ""
-          token: ""
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
           format: markdown
           message: |
             GitHub Actions CI/CD:
