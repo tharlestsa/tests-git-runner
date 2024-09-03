@@ -1,0 +1,63 @@
+name: Deploy APP_NAME!
+
+run-name: ${{ github.actor }} is running CI/CD pipeline on GitHub Actions
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run CI/CD
+        run: |
+          cd /data/time-series && ./run.sh
+      - name: Send Telegram message on pass
+        if: ${{ success() }}
+        uses: appleboy/telegram-action@master
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        with:
+          to: ""
+          token: ""
+          format: markdown
+          message: |
+            GitHub Actions CI/CD:
+
+            Application: *APP_NAME*         
+            Branch: *${{ github.ref }}*
+            Repository: *${{ github.repository }}*
+            Owner: *${{ github.repository_owner }}*
+            User: *${{ github.actor }}*
+            Status: PASS
+            Commit: *${{ github.sha }}*
+            Commit Message: *${{ github.event.head_commit.message }}*
+            Date:  *${{ github.event.head_commit.timestamp }}*
+
+      - name: Send Telegram message on failure
+        if: ${{ failure() }}
+        uses: appleboy/telegram-action@master
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        with:
+          to: ""
+          token: ""
+          format: markdown
+          message: |
+            GitHub Actions CI/CD:
+
+            Application: *APP_NAME*         
+            Branch: *${{ github.ref }}*
+            Repository: *${{ github.repository }}*
+            Owner: *${{ github.repository_owner }}*
+            User: *${{ github.actor }}*
+            Status: FAILED
+            Commit: *${{ github.sha }}*
+            Failure Message: *${{steps.run_script.outcome}}*
+            Date:  *${{ github.event.head_commit.timestamp }}*
