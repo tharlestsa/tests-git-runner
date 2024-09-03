@@ -16,13 +16,17 @@ jobs:
     environment: prod
     steps:
       - uses: actions/checkout@v2
+
+      - name: Máquina
+        run: |
+          cat /etc/os-release
       
       - name: Verificar Ambiente
         run: echo "Executando no ambiente de produção (prod)"
 
       - name: Run CI/CD
         run: |
-          cd /data/time-series && ./run.sh
+          echo "Run CI/CD"
           
       - name: Verificar Status do Servidor
         run: echo "Servidor está funcionando corretamente."
